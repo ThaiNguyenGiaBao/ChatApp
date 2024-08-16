@@ -6,6 +6,16 @@ interface decodeToken extends JwtPayload {
   id: string;
 }
 
+declare global {
+  namespace Express {
+    export interface Request {
+      user: {
+        id: string;
+      };
+    }
+  }
+}
+
 export const protectRoute = async (
   req: Request,
   res: Response,
@@ -30,7 +40,7 @@ export const protectRoute = async (
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
-
+    req.user = { id: user.id };
     next();
   } catch (error: any) {
     return res.status(401).json({ message: error.message });

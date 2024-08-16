@@ -35,9 +35,9 @@ export const signup = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const boyPic =
-      "https://avatar.iran.liara.run/public/boy?username" + username;
+      "https://avatar.iran.liara.run/public/boy?username=" + username;
     const girlPic =
-      "https://avatar.iran.liara.run/public/girl?username" + username;
+      "https://avatar.iran.liara.run/public/girl?username=" + username;
 
     const newUser = await prisma.user.create({
       data: {
@@ -110,7 +110,7 @@ export const findMe = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        id: req.params.id,
+        id: req.user.id,
       },
       
     });

@@ -1,9 +1,54 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
+import { MdError } from "react-icons/md";
+
+type FormData = {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  gender: string;
+};
+
 const SignUp = () => {
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    gender: "male",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const nav = useNavigate();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(formData);
+    axios
+      .post("http://localhost:8000/auth/signup", formData)
+      .then((res) => {
+        console.log(res.data);
+        nav("/login");
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+        setError(err.response.data.message);
+      });
+  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <div className=" max-w-96 w-3/4 bg-gray-400 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 ">
-      <div className="flex flex-col items-center text-white gap-3 p-4 px-8">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center text-white gap-3 p-4 px-8"
+      >
         <h1 className="text-2xl font-bold mb-2">
           SignUp <span className="text-blue-500">Chat App</span>
         </h1>
@@ -17,7 +62,14 @@ const SignUp = () => {
             <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
             <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
           </svg>
-          <input type="text" className="grow " placeholder="Email" />
+          <input
+            type="email"
+            className="grow "
+            placeholder="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
         </label>
         <label className="input w-full input-bordered flex items-center gap-2">
           <svg
@@ -28,7 +80,14 @@ const SignUp = () => {
           >
             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
           </svg>
-          <input type="text" className="grow" placeholder="Username" />
+          <input
+            type="text"
+            className="grow"
+            placeholder="Username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+          />
         </label>
 
         <div className="flex w-full items-center justify-start gap-4">
@@ -40,6 +99,10 @@ const SignUp = () => {
               type="checkbox"
               defaultChecked
               className=" bg-gray-300 checkbox  mr-2"
+              value={"male"}
+              checked={formData.gender == "male"}
+              name="gender"
+              onChange={handleChange}
             />
             <span className="label-text text-white">Male</span>
           </label>
@@ -48,6 +111,10 @@ const SignUp = () => {
               type="checkbox"
               defaultChecked
               className="checkbox mr-2 bg-gray-300"
+              value="female"
+              checked={formData.gender == "female"}
+              name="gender"
+              onChange={handleChange}
             />
             <span className="label-text text-white">Female</span>
           </label>
@@ -66,7 +133,14 @@ const SignUp = () => {
               clipRule="evenodd"
             />
           </svg>
-          <input type="password" className="grow" placeholder="Password" />
+          <input
+            type="password"
+            className="grow"
+            placeholder="Password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
         </label>
         <label className="input w-full input-bordered flex items-center gap-2">
           <svg
@@ -85,6 +159,9 @@ const SignUp = () => {
             type="password"
             className="grow"
             placeholder="Confirm Password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
           />
         </label>
         <p className="w-full">
@@ -93,10 +170,19 @@ const SignUp = () => {
             <span className="text-blue-400 font-semibold">log in</span>
           </Link>
         </p>
-        <button className="btn bg-blue-500 border-none text-white text-lg w-full">
+        <button
+          type="submit"
+          className="btn bg-blue-500 border-none text-white text-lg w-full"
+        >
           Sign Up
         </button>
-      </div>
+        {error && (
+          <div role="alert" className="alert alert-error bg-red-600 rounded-md py-3">
+           <MdError className="text-gray-200 text-2xl"/>
+            <span className="text-gray-200">{error}</span>
+          </div>
+        )}
+      </form>
     </div>
   );
 };

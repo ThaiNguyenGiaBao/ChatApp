@@ -13,13 +13,27 @@ type User = {
 };
 
 export const signup = async (req: Request, res: Response) => {
-  const { username, email, password, comfirmPassword, gender } = req.body;
-  console.log(req.body);
-  if (!username || !email || !password || !comfirmPassword || !gender) {
+  const { username, email, password, confirmPassword, gender } = req.body;
+
+  //console.log(username, email, password,gender, confirmPassword)
+  if (!username || !email || !password || !confirmPassword || !gender) {
     return res.status(400).json({ message: "All fields are required" });
   }
-  if (password !== comfirmPassword) {
+
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters" });
+  }
+  if (password !== confirmPassword) {
     return res.status(400).json({ message: "Password do not match" });
+  }
+  // Normalize username that not contains space
+  const usernameRegex = /^[a-zA-Z0-9_]+$/;
+  if (!usernameRegex.test(username)) {
+    return res.status(400).json({
+      message: "Username must be alphanumeric and not contains space",
+    });
   }
   try {
     const user = await prisma.user.findUnique({
@@ -112,7 +126,6 @@ export const findMe = async (req: Request, res: Response) => {
       where: {
         id: req.user.id,
       },
-      
     });
     if (!user) {
       return res.status(400).json({ message: "User not found" });

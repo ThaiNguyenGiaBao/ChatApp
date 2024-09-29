@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../db/prisma";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken";
-import exp from "constants";
+import jwt from "jsonwebtoken";
 
 type User = {
   username: string;
@@ -20,11 +20,11 @@ export const signup = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  if (password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters" });
-  }
+  // if (password.length < 6) {
+  //   return res
+  //     .status(400)
+  //     .json({ message: "Password must be at least 6 characters" });
+  // }
   if (password !== confirmPassword) {
     return res.status(400).json({ message: "Password do not match" });
   }
@@ -36,10 +36,9 @@ export const signup = async (req: Request, res: Response) => {
     });
   }
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
-        email,
-        username,
+        OR: [{ email: email }, { username: username }],
       },
     });
     if (user) {
@@ -98,6 +97,15 @@ export const signin = async (req: Request, res: Response) => {
     }
 
     generateToken(user.id, res);
+
+    // const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+    //   expiresIn: "30d",
+    // });
+
+    // res.cookie("token", token);
+    // console.log("Token: ", token);
+
+
 
     return res.status(200).json({
       id: user.id,

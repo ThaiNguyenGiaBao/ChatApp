@@ -6,6 +6,9 @@ export const sendMessage = async (req: Request, res: Response) => {
   const { id: receiverId } = req.params;
   const { id: senderId } = req.user;
 
+  console.log("Send ", senderId, receiverId);
+  console.log("Message ", message);
+
   const sender = await prisma.user.findUnique({
     where: {
       id: senderId,
@@ -129,6 +132,7 @@ export const getConversations = async (req: Request, res: Response) => {
         id: true,
         username: true,
         profilePic: true,
+        email: true,
       },
     });
     return res.status(200).json(users);

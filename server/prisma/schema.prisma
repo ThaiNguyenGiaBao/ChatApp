@@ -16,7 +16,7 @@ model User {
     profilePic String
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
-    conversationsId String[]
+    //conversationsId String[]
 
     conversations Conversation[]
     messages Message[]

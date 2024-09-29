@@ -21,7 +21,9 @@ export const protectRoute = async (
   res: Response,
   next: NextFunction
 ) => {
+
   const token = req.cookies.token;
+  console.log("Token:",  token);
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }

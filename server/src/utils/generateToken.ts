@@ -7,10 +7,12 @@ export const generateToken = (id: string, res: Response) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: "30d",
   });
-
   res.cookie("token", token, {
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // Prevent from XSS attack
+    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+    secure: false, // Use 'true' if you're on HTTPS, otherwise 'false' for development
+    sameSite: "lax", // Controls how cookies are sent across sites (adjust this if necessary)
   });
+
+
   return token;
 };

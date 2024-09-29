@@ -1,5 +1,6 @@
-import React from "react";
-
+import useConversationStore from "../zustand/conversationStore";
+import { useEffect, useState } from "react";
+import axios from "axios";
 type ProfileItemProps = {
   user: {
     id: string;
@@ -13,18 +14,31 @@ type ProfileItemProps = {
 
 const ProfileItem = ({
   user,
-  width = 12,
+  //width = 14,
   isHover = true,
 }: ProfileItemProps) => {
+  const conversation = useConversationStore((state) => state.conversation);
+  const setConversation = useConversationStore(
+    (state) => state.setConversation
+  );
+
+  const handleChangeConversation = () => {
+    setConversation({
+      id: user.id,
+      username: user.username,
+      profilePic: user.profilePic,
+    });
+  };
+
+  console.log("conservation", conversation);
   return (
     <div
-      className={
-        isHover
-          ? "hover:bg-gray-400 flex items-center p-2 space-x-2 cursor-pointer px-4  rounded-lg"
-          : "flex items-center p-2 space-x-2 cursor-pointer px-0  rounded-lg "
-      }
+      className={`flex items-center p-2 space-x-2 cursor-pointer px-0 rounded-lg
+      ${isHover ? "hover:bg-gray-600" : ""}
+      ${conversation?.id === user.id ? "bg-gray-600" : ""}`}
+      onClick={handleChangeConversation}
     >
-      <div className={`avatar online w-${width}`}>
+      <div className={`avatar online w-14`}>
         <img src={user.profilePic} alt="profile" className="rounded-full" />
       </div>
       <div>
@@ -35,22 +49,48 @@ const ProfileItem = ({
   );
 };
 
-const ConversationList = () => {
-  const user = {
-    id: "clzw7f6rz0000afskg0tdsdgc",
-    username: "phuc",
-    email: "phuc@123",
-    profilePic: "https://avatar.iran.liara.run/public/boy?username=phuc",
-  };
+type Conversation = {
+  id: string;
+  username: string;
+  profilePic: string;
+  email: string;
+};
 
-  return (
-    <div>
-      <ProfileItem user={user} />
-      <ProfileItem user={user} />
-      <ProfileItem user={user} />
-      <ProfileItem user={user} />
-    </div>
-  );
+const ConversationList = () => {
+  const [conservationList, setConservationList] = useState<Conversation[]>([]);
+  // const user = {
+  //   id: "clzw7f6rz0000afskg0tdsdg2",
+  //   username: "phuc2",
+  //   email: "phuc2@123",
+  //   profilePic: "https://avatar.iran.liara.run/public/boy?username=phuc",
+  // };
+
+  // const user2 = {
+  //   id: "clzw7f6rz0000afskg0tdsdg1",
+  //   username: "phuc1",
+  //   email: "phuc1@123",
+  //   profilePic: "https://avatar.iran.liara.run/public/boy?username=phuc",
+  // };
+
+  const renderConversationList = () => {
+    return conservationList.map((user) => {
+      console.log(user);
+      return <ProfileItem user={user} />;
+    });
+  };
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/message/conversations")
+      .then((res) => {
+        console.log(res.data);
+        setConservationList(res.data);
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+      });
+  });
+
+  return <div>{renderConversationList()}</div>;
 };
 
 export default ConversationList;

@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma";
-
+import { io, getUserSocketId } from "../socket/index";
+import { text } from "stream/consumers";
 export const sendMessage = async (req: Request, res: Response) => {
   const message = req.body.message;
   const { id: receiverId } = req.params;
   const { id: senderId } = req.user;
 
-  console.log("Send ", senderId, receiverId);
-  console.log("Message ", message);
+ // console.log("Send ", senderId, receiverId);
+  //console.log("Message ", message);
 
   const sender = await prisma.user.findUnique({
     where: {
@@ -21,7 +22,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     },
   });
 
-  console.log(sender?.username, receiver?.username);
+  //console.log(sender?.username, receiver?.username);
 
   try {
     let conversation = await prisma.conversation.findFirst({
@@ -63,6 +64,18 @@ export const sendMessage = async (req: Request, res: Response) => {
           },
         },
       });
+
+      const receiverSocketId = getUserSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("new-message", {
+          text: message,
+          senderId,
+          sender: {
+            profilePic: sender?.profilePic,
+          },
+        });
+        //console.log(message, ": sented");
+      }
     } else {
       return res.status(400).json({ message: "Message not sent" });
     }
@@ -85,13 +98,7 @@ export const getMessages = async (req: Request, res: Response) => {
     },
   });
 
-  const receiver = await prisma.user.findUnique({
-    where: {
-      id: receiverId,
-    },
-  });
-
-  console.log("Get ", sender?.username, receiver?.username);
+  //console.log("Get ", sender?.username,);
 
   try {
     let conversation = await prisma.conversation.findFirst({
@@ -104,6 +111,13 @@ export const getMessages = async (req: Request, res: Response) => {
         messages: {
           orderBy: {
             createdAt: "asc",
+          },
+          include: {
+            sender: {
+              select: {
+                profilePic: true,
+              },
+            },
           },
         },
       },

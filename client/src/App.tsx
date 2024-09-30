@@ -11,20 +11,17 @@ import { useUserStore } from "./zustand/userStore";
 
 function App() {
   const user = useUserStore((state) => state.user);
-
+ 
   return (
     <div className="p-4 flex items-center justify-center h-screen">
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
           <Route
-            path="/signin"
-            element={user ? <Navigate to={"/"} /> : <Login />}
+            path="/"
+            element={user ? <Home /> : <Navigate to="/signin" />}
           />
-          <Route
-            path="/signup"
-            element={user ? <Navigate to={"/"} /> : <Signup />}
-          />
+          <Route path="/signin" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </Router>
     </div>

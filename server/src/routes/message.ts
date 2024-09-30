@@ -13,7 +13,7 @@ router.get("/", (req: Request, res: Response) => {
   res.send(token);
 });
 router.post("/send/:id", protectRoute, sendMessage);
-router.get("/conversations", getConversations);
+router.get("/conversations",protectRoute, getConversations);
 router.get("/:id", protectRoute, getMessages);
 
 export default router;

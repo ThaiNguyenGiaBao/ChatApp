@@ -7,16 +7,29 @@ type Conversation = {
   profilePic: string;
 };
 
+export type Message = {
+  text: string;
+  senderId: string;
+  sender: {
+    profilePic: string;
+  };
+};
+
 type ConversationStore = {
   conversation: Conversation | null;
-  setConversation: (conversation: Conversation) => void;
+  setConversation: (conversation: Conversation | null) => void;
+  messageList: Message[] | [];
+  setMessageList: (messageList: Message[] | []) => void;
 };
 
 const useConversationStore = create<ConversationStore>()(
   persist(
     (set) => ({
       conversation: null,
-      setConversation: (conversation: Conversation) => set({ conversation }),
+      setConversation: (conversation: Conversation | null) =>
+        set({ conversation }),
+      messageList: [],
+      setMessageList: (messageList: Message[]) => set({ messageList }),
     }),
     {
       name: "conversation-storage",

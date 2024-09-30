@@ -26,7 +26,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await axios
-      .post("http://localhost:8000/auth/signin", formData)
+      .post("http://localhost:8000/auth/signin", formData, {
+        withCredentials: true,
+      })
       .then((res) => {
         console.log(res.data);
         if (res.data) {

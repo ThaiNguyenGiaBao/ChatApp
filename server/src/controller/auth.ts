@@ -96,7 +96,18 @@ export const signin = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    generateToken(user.id, res);
+    //console.log("SignIn::username", user.username);
+
+    // generateToken(user.id, res);
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: "30d",
+    });
+    
+    res.cookie("token", token, {
+      secure: false, // Use 'true' if you're on HTTPS, otherwise 'false' for development
+      sameSite: "lax", // Controls how cookies are sent across sites (adjust this if necessary)
+    });
 
     // const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
     //   expiresIn: "30d",
@@ -104,8 +115,6 @@ export const signin = async (req: Request, res: Response) => {
 
     // res.cookie("token", token);
     // console.log("Token: ", token);
-
-
 
     return res.status(200).json({
       id: user.id,

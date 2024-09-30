@@ -22,14 +22,14 @@ const SignUp = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const nav = useNavigate();
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
-    axios
+    //console.log(formData);
+    await axios
       .post("http://localhost:8000/auth/signup", formData)
       .then((res) => {
-        console.log(res.data);
-        nav("/login");
+        //console.log(res.data);
+        nav("/signin");
       })
       .catch((err) => {
         console.log(err.response.data);
@@ -177,8 +177,11 @@ const SignUp = () => {
           Sign Up
         </button>
         {error && (
-          <div role="alert" className="alert alert-error bg-red-600 rounded-md py-3">
-           <MdError className="text-gray-200 text-2xl"/>
+          <div
+            role="alert"
+            className="alert alert-error bg-red-600 rounded-md py-3"
+          >
+            <MdError className="text-gray-200 text-2xl" />
             <span className="text-gray-200">{error}</span>
           </div>
         )}
